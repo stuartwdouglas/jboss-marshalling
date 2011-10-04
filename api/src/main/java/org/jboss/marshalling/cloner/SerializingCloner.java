@@ -166,11 +166,15 @@ class SerializingCloner implements ObjectCloner {
         final Class<? extends Object> objClass = orig.getClass();
         if (orig instanceof Enum) {
             final Class<? extends Enum> cloneClass = ((Class<?>)clone(objClass)).asSubclass(Enum.class);
-            if (cloneClass == orig) {
+
+            if (cloneClass == objClass) {
                 // same class means same enum constants
                 return orig;
             } else {
-                return Enum.valueOf(cloneClass, ((Enum) orig).name());
+                //the actual object class may be a sub class of the enum class
+                final Class enumClass = ((Enum) orig).getDeclaringClass();
+                final Class<? extends Enum> cloneEnumClass = ((Class<?>)clone(enumClass)).asSubclass(Enum.class);
+                return Enum.valueOf(cloneEnumClass, ((Enum) orig).name());
             }
         }
         final Class<?> clonedClass = (Class<?>) clone(objClass);
